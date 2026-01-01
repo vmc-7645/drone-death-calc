@@ -1,0 +1,2213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Camera Identification Distance Calculator</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --panel:#ffffff;
+      --text:#000000;
+      --muted:#444444;
+      --line:#000000;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .wrap{
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 22px 18px 36px;
+    }
+
+    header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom: 14px;
+    }
+
+    h1{
+      margin:0;
+      font-size: 18px;
+      letter-spacing: .2px;
+      font-weight: 700;
+    }
+
+    .sub{
+      margin-top:6px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+      max-width: 900px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 430px 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 0;
+      overflow:hidden;
+    }
+
+    .card .head{
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .card .head h2{
+      margin:0;
+      font-size: 13px;
+      letter-spacing: .2px;
+      text-transform: uppercase;
+      color: #000;
+      opacity: 1;
+    }
+
+    .pill{
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      padding: 4px 8px;
+      border-radius: 0;
+      border: 1px solid var(--line);
+      background: #fff;
+      white-space: nowrap;
+    }
+
+    .body{ padding: 12px 14px 14px; }
+
+    .section{
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed #000;
+    }
+    .section:last-child{ border-bottom:0; padding-bottom:0; margin-bottom:0; }
+
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 520px){
+      .row{ grid-template-columns: 1fr; }
+    }
+
+    label{
+      display:block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .field{
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: 0;
+      background: #fff;
+      padding: 10px 10px 9px;
+    }
+
+    input[type="number"]{
+      width: 100%;
+      border:0;
+      outline:0;
+      background: transparent;
+      color: var(--text);
+      font-size: 14px;
+      font-family: var(--mono);
+      padding-right: 58px;
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+
+    .unit{
+      position:absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      color: var(--muted);
+      font-family: var(--mono);
+      opacity: .95;
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    button{
+      border: 1px solid var(--line);
+      background:#fff;
+      color: #000;
+      padding: 9px 10px;
+      border-radius: 0;
+      cursor:pointer;
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 13px;
+    }
+    button:hover{ outline: 1px solid #000; }
+
+    .btnAccent{
+      background:#fff;
+      border-color:#000;
+    }
+
+    .warning{
+      margin-top: 8px;
+      color: #000;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .results{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .kpi{
+      border: 1px solid var(--line);
+      border-radius: 0;
+      background:#fff;
+      padding: 12px 12px;
+    }
+
+    .kpi .title{
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .kpi .value{
+      font-size: 22px;
+      font-family: var(--mono);
+      letter-spacing: .2px;
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .kpi .value small{
+      font-size: 12px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    .split{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 780px){
+      .split{ grid-template-columns: 1fr; }
+    }
+
+    .mono{ font-family: var(--mono); }
+
+    .mini{
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .canvasWrap{ padding: 12px 14px 14px; }
+
+    .canvasTop{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap: wrap;
+      align-items:flex-end;
+      margin-bottom: 10px;
+    }
+
+    .legend{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items:center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .dot{
+      display:inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 0;
+      border: 1px solid var(--line);
+      margin-right: 6px;
+      background:#fff;
+    }
+
+    canvas{
+      width: 100%;
+      height: 560px;
+      background:#fff;
+      border: 1px solid var(--line);
+      border-radius: 0;
+      display:block;
+    }
+
+    .foot{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .table{
+      width: 100%;
+      border-collapse: collapse;
+      overflow:hidden;
+      border-radius: 0;
+      border: 1px solid var(--line);
+      background:#fff;
+    }
+
+    .table th, .table td{
+      text-align:left;
+      padding: 10px 10px;
+      border-bottom: 1px solid #000;
+      font-size: 12px;
+      vertical-align: top;
+    }
+
+    .table th{ color: var(--muted); font-weight: 600; }
+    .table tr:last-child td{ border-bottom: 0; }
+
+    .sensGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    @media (max-width: 780px){
+      .sensGrid{ grid-template-columns: 1fr; }
+    }
+
+    .sensCard{
+      border: 1px solid var(--line);
+      padding: 10px;
+      background:#fff;
+    }
+
+    .sensBtns{
+      display:flex;
+      gap:8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .tag{
+      display:inline-block;
+      font-family: var(--mono);
+      font-size: 11px;
+      border: 1px solid var(--line);
+      padding: 2px 6px;
+      background:#fff;
+      color:#000;
+      border-radius:0;
+      margin-left: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Camera Identification Distance Calculator</h1>
+        <div class="sub">
+          Computes max identification distance from FoV + sensor pixels + min pixel footprint.
+          Full dome scan time is max(mechanical, camera) where camera time assumes 1 frame per tile.
+          Adds a motion blur limiter (default worst-case lateral motion) using a blur budget as a fraction of the object footprint.
+        </div>
+      </div>
+      <div class="pill" id="statusPill">Ready</div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <div class="head">
+          <h2>Inputs</h2>
+          <div class="pill" id="presetPill">Preset: Default</div>
+        </div>
+        <div class="body">
+
+          <div class="section">
+            <div class="row">
+              <div>
+                <label for="fovW">FoV width</label>
+                <div class="field">
+                  <input id="fovW" type="number" min="0.1" step="0.1" value="5" />
+                  <div class="unit">deg</div>
+                </div>
+              </div>
+              <div>
+                <label for="fovH">FoV height</label>
+                <div class="field">
+                  <input id="fovH" type="number" min="0.1" step="0.1" value="5" />
+                  <div class="unit">deg</div>
+                </div>
+              </div>
+            </div>
+            <div class="mini">Top-down visualization uses FoV width only.</div>
+          </div>
+
+          <div class="section">
+            <div class="row">
+              <div>
+                <label for="scanAz">Dome scan azimuth</label>
+                <div class="field">
+                  <input id="scanAz" type="number" min="1" step="1" value="360" />
+                  <div class="unit">deg</div>
+                </div>
+              </div>
+              <div>
+                <label for="scanEl">Dome scan elevation</label>
+                <div class="field">
+                  <input id="scanEl" type="number" min="1" step="1" value="90" />
+                  <div class="unit">deg</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label for="scanRate">Scan speed (pan)</label>
+                <div class="field">
+                  <input id="scanRate" type="number" min="0.01" step="0.1" value="180" />
+                  <div class="unit">deg/s</div>
+                </div>
+              </div>
+              <div>
+                <label for="tiltRate">Scan speed (tilt)</label>
+                <div class="field">
+                  <input id="tiltRate" type="number" min="0.01" step="0.1" value="180" />
+                  <div class="unit">deg/s</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label for="overlap">Tile overlap</label>
+                <div class="field">
+                  <input id="overlap" type="number" min="0" max="95" step="1" value="15" />
+                  <div class="unit">%</div>
+                </div>
+              </div>
+              <div>
+                <label for="cameraFps">Detection FPS</label>
+                <div class="field">
+                  <input id="cameraFps" type="number" min="0.01" step="0.1" value="300" />
+                  <div class="unit">fps</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label for="objectSpeed">Object speed (worst-case lateral)</label>
+                <div class="field">
+                  <input id="objectSpeed" type="number" min="0" step="0.1" value="25" />
+                  <div class="unit">m/s</div>
+                </div>
+              </div>
+              <div></div>
+            </div>
+
+            <div class="mini">Scan time uses a row-scan pattern: pan across full azimuth for each elevation row, then tilt by one step.</div>
+          </div>
+
+          <div class="section">
+            <div class="row">
+              <div>
+                <label for="sensorPxW">Sensor width</label>
+                <div class="field">
+                  <input id="sensorPxW" type="number" min="1" step="1" value="1024" />
+                  <div class="unit">px</div>
+                </div>
+              </div>
+              <div>
+                <label for="sensorMmW">Sensor width</label>
+                <div class="field">
+                  <input id="sensorMmW" type="number" min="0.01" step="0.01" value="5.76" />
+                  <div class="unit">mm</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label for="sensorPxH">Sensor height</label>
+                <div class="field">
+                  <input id="sensorPxH" type="number" min="1" step="1" value="1024" />
+                  <div class="unit">px</div>
+                </div>
+              </div>
+              <div>
+                <label for="sensorMmH">Sensor height</label>
+                <div class="field">
+                  <input id="sensorMmH" type="number" min="0.01" step="0.01" value="4.29" />
+                  <div class="unit">mm</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mini">Sensor mm is used to estimate focal length and f-number. Distance math uses FoV (deg) + sensor px.</div>
+          </div>
+
+          <div class="section">
+            <div class="row">
+              <div>
+                <label for="sceneLux">Scene illuminance</label>
+                <div class="field">
+                  <input id="sceneLux" type="number" min="0" step="10" value="300" />
+                  <div class="unit">lux</div>
+                </div>
+              </div>
+              <div>
+                <label for="iso">ISO</label>
+                <div class="field">
+                  <input id="iso" type="number" min="1" step="1" value="400" />
+                  <div class="unit">ISO</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label for="shutterFrac">Shutter fraction</label>
+                <div class="field">
+                  <input id="shutterFrac" type="number" min="0.01" max="1" step="0.01" value="0.33" />
+                  <div class="unit">0-1</div>
+                </div>
+              </div>
+              <div>
+                <label for="targetSnr">Target SNR (rough)</label>
+                <div class="field">
+                  <input id="targetSnr" type="number" min="1" step="1" value="20" />
+                  <div class="unit">ratio</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mini">Exposure estimate is approximate. Real results depend strongly on optics transmission, QE/efficiency, and scene.</div>
+          </div>
+
+          <div class="section">
+            <div class="row">
+              <div>
+                <label for="transmission">Lens transmission</label>
+                <div class="field">
+                  <input id="transmission" type="number" min="0" max="1" step="0.01" value="0.80" />
+                  <div class="unit">0-1</div>
+                </div>
+              </div>
+              <div>
+                <label for="efficiency">System efficiency</label>
+                <div class="field">
+                  <input id="efficiency" type="number" min="0" max="1" step="0.01" value="0.35" />
+                  <div class="unit">0-1</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label for="blurFrac">Blur budget (identify)</label>
+                <div class="field">
+                  <input id="blurFrac" type="number" min="0.1" max="50" step="0.1" value="5" />
+                  <div class="unit">% of footprint</div>
+                </div>
+              </div>
+              <div style="display:flex; align-items:flex-end; gap:10px;">
+                <label style="display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); user-select:none; margin:0;">
+                  <input id="includeScanBlur" type="checkbox" style="accent-color:#000;" />
+                  Include scan motion blur
+                </label>
+              </div>
+            </div>
+
+            <div class="mini">Blur budget is applied to the object footprint: allowed blur = blurFrac * min(objPxW, objPxH) at distance D. Default assumes worst-case lateral motion from object only.</div>
+          </div>
+
+          <div class="section">
+            <div class="row">
+              <div>
+                <label for="objW">Object width</label>
+                <div class="field">
+                  <input id="objW" type="number" min="0.0001" step="0.01" value="0.3" />
+                  <div class="unit">m</div>
+                </div>
+              </div>
+              <div>
+                <label for="objH">Object height</label>
+                <div class="field">
+                  <input id="objH" type="number" min="0.0001" step="0.01" value="0.3" />
+                  <div class="unit">m</div>
+                </div>
+              </div>
+            </div>
+            <div class="mini">Assumes object face is roughly perpendicular to the camera axis.</div>
+          </div>
+
+          <div class="section">
+            <div class="row">
+              <div>
+                <label for="minPxW">Min pixels (object width)</label>
+                <div class="field">
+                  <input id="minPxW" type="number" min="1" step="1" value="5" />
+                  <div class="unit">px</div>
+                </div>
+              </div>
+              <div>
+                <label for="minPxH">Min pixels (object height)</label>
+                <div class="field">
+                  <input id="minPxH" type="number" min="1" step="1" value="5" />
+                  <div class="unit">px</div>
+                </div>
+              </div>
+            </div>
+            <div class="mini">Interpret as the minimum pixel footprint to identify the object (model or human).</div>
+          </div>
+
+          <div class="controls">
+            <button class="btnAccent" id="btnRecalc">Recalculate</button>
+            <button id="btnReset">Reset</button>
+            <button id="btnPresetPhone">Preset: Phone-ish</button>
+          </div>
+
+          <div class="warning" id="warnBox" style="display:none"></div>
+
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="head">
+          <h2>Results + visualization</h2>
+          <div class="pill" id="calcPill">-</div>
+        </div>
+
+        <div class="canvasWrap">
+          <div class="canvasTop">
+            <div class="legend">
+              <span><span class="dot"></span>FoV wedge (top-down)</span>
+              <span><span class="dot"></span>Width dist (dashed)</span>
+              <span><span class="dot"></span>Height dist (dotted)</span>
+              <span><span class="dot"></span>Final dist (solid)</span>
+              <span><span class="dot"></span>Blur dist (dash-dot)</span>
+              <span><span class="dot"></span>Object arrow + max travel</span>
+              <span><span class="dot"></span>Side profile (FoV height)</span>
+            </div>
+            <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; justify-content:flex-end">
+              <label style="display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); user-select:none;">
+                <input id="toggleGeo" type="checkbox" checked style="accent-color:#000;" />
+                Show distance geometry
+              </label>
+              <div class="pill" id="scalePill">Scale: -</div>
+            </div>
+          </div>
+
+          <canvas id="viz" width="900" height="560"></canvas>
+
+          <div style="height:10px"></div>
+          <canvas id="sideViz" width="900" height="260" style="height:260px"></canvas>
+
+          <div class="foot" id="vizNote"></div>
+        </div>
+
+        <div class="body">
+          <div class="results">
+            <div class="split">
+              <div class="kpi">
+                <div class="title">Max identification distance (final)</div>
+                <div class="value" id="kpiFinal">- <small>m</small></div>
+                <div class="mini" id="kpiFinalNote">-</div>
+              </div>
+              <div class="kpi">
+                <div class="title">Dominant distance constraint</div>
+                <div class="value" id="kpiDistDom">- <small></small></div>
+                <div class="mini" id="kpiDistDomNote">-</div>
+              </div>
+            </div>
+
+            <div class="split">
+              <div class="kpi">
+                <div class="title">Lensing (from sensor mm + FoV)</div>
+                <div class="value" id="kpiLens">- <small>mm</small></div>
+                <div class="mini" id="kpiLensNote">-</div>
+              </div>
+              <div class="kpi">
+                <div class="title">Pixels per degree</div>
+                <div class="value" id="kpiPPD">- <small>px/deg</small></div>
+                <div class="mini" id="kpiPPDNote">-</div>
+              </div>
+            </div>
+
+            <div class="split">
+              <div class="kpi">
+                <div class="title">Full dome scan time</div>
+                <div class="value" id="kpiScan">- <small>s</small></div>
+                <div class="mini" id="kpiScanNote">-</div>
+              </div>
+              <div class="kpi">
+                <div class="title">Dominant scan constraint</div>
+                <div class="value" id="kpiScanDom">- <small></small></div>
+                <div class="mini" id="kpiScanDomNote">-</div>
+              </div>
+            </div>
+
+            <div class="split">
+              <div class="kpi">
+                <div class="title">Required f-number (1 frame per tile)</div>
+                <div class="value" id="kpiAperture">- <small>f/</small></div>
+                <div class="mini" id="kpiApertureNote">-</div>
+              </div>
+              <div class="kpi">
+                <div class="title">Dominant exposure constraint</div>
+                <div class="value" id="kpiExpDom">- <small></small></div>
+                <div class="mini" id="kpiExpDomNote">-</div>
+              </div>
+            </div>
+
+            <div class="split">
+              <div class="kpi">
+                <div class="title">Max distance traveled before full scan</div>
+                <div class="value" id="kpiTravel">- <small>m</small></div>
+                <div class="mini" id="kpiTravelNote">-</div>
+              </div>
+              <div class="kpi">
+                <div class="title">Feasibility</div>
+                <div class="value" id="kpiFeasible">- <small></small></div>
+                <div class="mini" id="kpiFeasibleNote">-</div>
+              </div>
+            </div>
+
+            <div class="kpi">
+              <div class="title">Sensitivity (what-if)</div>
+              <div class="mini">Recomputes key outputs under simple multipliers to show what actually moves the needle.</div>
+              <div class="sensBtns">
+                <button id="btnSensFps2">FPS x2</button>
+                <button id="btnSensLux2">Lux x2</button>
+                <button id="btnSensFovHalf">FoV x0.5</button>
+                <button id="btnSensPx2">Sensor px x2</button>
+                <button id="btnSensReset">Reset</button>
+              </div>
+              <div class="sensGrid">
+                <div class="sensCard">
+                  <div class="mini"><span class="mono">Baseline</span></div>
+                  <div id="sensBase" class="mono" style="margin-top:6px; font-size:12px; line-height:1.5;">-</div>
+                </div>
+                <div class="sensCard">
+                  <div class="mini"><span class="mono" id="sensLabel">Scenario</span></div>
+                  <div id="sensScenario" class="mono" style="margin-top:6px; font-size:12px; line-height:1.5;">-</div>
+                </div>
+              </div>
+            </div>
+
+            <table class="table" aria-label="Details">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Value</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody id="detailTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    // ----------------- Helpers -----------------
+    function $(id){ return document.getElementById(id); }
+
+    function deg2rad(d){ return d * Math.PI / 180; }
+    function rad2deg(r){ return r * 180 / Math.PI; }
+
+    function clamp(x, lo, hi){ return Math.max(lo, Math.min(hi, x)); }
+
+    function fmt(x, digits){
+      if (digits === undefined) digits = 2;
+      if (!isFinite(x)) return "-";
+      var y = Math.abs(x) < 1e-12 ? 0 : x;
+      return y.toLocaleString(undefined, { maximumFractionDigits: digits, minimumFractionDigits: digits });
+    }
+
+    function safeNum(v){
+      var n = Number(v);
+      return Number.isFinite(n) ? n : NaN;
+    }
+
+    // Single correct HTML escaper.
+    function escapeHtml(s){
+      var str = String(s);
+      return str
+        .split("&").join("&amp;")
+        .split("<").join("&lt;")
+        .split(">").join("&gt;")
+        .split('"').join("&quot;")
+        .split("'").join("&#039;");
+    }
+
+    // ----------------- Core geometry -----------------
+    function computeDistanceFromMinPixels(args){
+      var size_m = args.size_m;
+      var minPx = args.minPx;
+      var pxPerDeg = args.pxPerDeg;
+      if (!(size_m > 0) || !(minPx > 0) || !(pxPerDeg > 0)) return NaN;
+      var thetaDeg = minPx / pxPerDeg;
+      var thetaRad = deg2rad(thetaDeg);
+      var denom = 2 * Math.tan(thetaRad / 2);
+      if (!(denom > 0)) return NaN;
+      return size_m / denom;
+    }
+
+    function computeRemainingDistance(distDetect, travel){
+      if (!(isFinite(distDetect) && distDetect > 0)) return NaN;
+      if (!(isFinite(travel) && travel >= 0)) return NaN;
+      return Math.max(distDetect - travel, 0);
+    }
+
+    function computeFocalLengthMm(sensorMm, fovDeg){
+      if (!(isFinite(sensorMm) && sensorMm > 0)) return NaN;
+      if (!(isFinite(fovDeg) && fovDeg > 0 && fovDeg < 179.9)) return NaN;
+      return (sensorMm / 2) / Math.tan(deg2rad(fovDeg) / 2);
+    }
+
+    // ----------------- Exposure approx -----------------
+    function luxToEV100(lux){
+      if (!(isFinite(lux) && lux > 0)) return NaN;
+      // Very rough calibration constant.
+      var K = 0.30;
+      return Math.log2(lux * K);
+    }
+
+    // Exactly one definition.
+    function estimateFNumberFromLux(args){
+      var lux = args.lux;
+      var shutter_s = args.shutter_s;
+      var iso = args.iso;
+      if (!(isFinite(shutter_s) && shutter_s > 0)) return NaN;
+      if (!(isFinite(iso) && iso > 0)) return NaN;
+      var ev100 = luxToEV100(lux);
+      if (!isFinite(ev100)) return NaN;
+      var ev = ev100 + Math.log2(iso / 100);
+      // EV: N^2 / t = 2^EV  => N = sqrt(t * 2^EV)
+      return Math.sqrt(shutter_s * Math.pow(2, ev));
+    }
+
+    // ----------------- Scan time selection -----------------
+    function computeFullDomeScanTimeMax(mechTime, camTime){
+      var m = (isFinite(mechTime) && mechTime >= 0) ? mechTime : NaN;
+      var c = (isFinite(camTime) && camTime >= 0) ? camTime : NaN;
+      if (isFinite(m) && isFinite(c)) return Math.max(m, c);
+      if (isFinite(m)) return m;
+      if (isFinite(c)) return c;
+      return NaN;
+    }
+
+    // ----------------- Blur-limited distance -----------------
+    function objectFootprintPxAtDistance(size_m, D_m, pxPerDeg){
+      if (!(isFinite(size_m) && size_m > 0)) return NaN;
+      if (!(isFinite(D_m) && D_m > 0)) return NaN;
+      if (!(isFinite(pxPerDeg) && pxPerDeg > 0)) return NaN;
+      var thetaDeg = rad2deg(2 * Math.atan(size_m / (2 * D_m)));
+      return thetaDeg * pxPerDeg;
+    }
+
+    function blurAllowedPxAtDistance(D_m, args){
+      var blurFrac = args.blurFrac;
+      var objW = args.objW;
+      var objH = args.objH;
+      var pxPerDegW = args.pxPerDegW;
+      var pxPerDegH = args.pxPerDegH;
+      if (!(isFinite(blurFrac) && blurFrac > 0)) return NaN;
+      var pxW = objectFootprintPxAtDistance(objW, D_m, pxPerDegW);
+      var pxH = objectFootprintPxAtDistance(objH, D_m, pxPerDegH);
+      if (!isFinite(pxW) || !isFinite(pxH)) return NaN;
+      var minDim = Math.max(0, Math.min(pxW, pxH));
+      return blurFrac * minDim;
+    }
+
+    function pxRateObjAtDistance(D_m, args){
+      var v = args.objectSpeed;
+      var pxPerDegW = args.pxPerDegW;
+      var pxPerDegH = args.pxPerDegH;
+      if (!(isFinite(v) && v >= 0)) return NaN;
+      if (!(isFinite(D_m) && D_m > 0)) return NaN;
+      var pxPerDeg = Math.min(pxPerDegW, pxPerDegH);
+      if (!(isFinite(pxPerDeg) && pxPerDeg > 0)) return NaN;
+      var pxPerRad = pxPerDeg * (180 / Math.PI);
+      // worst-case lateral: omega = v / D
+      var omega = v / D_m; // rad/s
+      return omega * pxPerRad;
+    }
+
+    function pxRateScan(args){
+      var scanRateDegS = args.scanRate;
+      var pxPerDegW = args.pxPerDegW;
+      if (!(isFinite(scanRateDegS) && scanRateDegS >= 0)) return NaN;
+      if (!(isFinite(pxPerDegW) && pxPerDegW > 0)) return NaN;
+      // deg/s -> px/s
+      return scanRateDegS * pxPerDegW;
+    }
+
+    function tBlurMaxAtDistance(D_m, args){
+      var allowed = blurAllowedPxAtDistance(D_m, args);
+      var rObj = pxRateObjAtDistance(D_m, args);
+      if (!isFinite(allowed) || !isFinite(rObj)) return NaN;
+      var rate = rObj;
+      if (args.includeScanBlur){
+        var rScan = pxRateScan(args);
+        if (isFinite(rScan)) rate += rScan;
+      }
+      if (!(rate > 0)) return Infinity;
+      return allowed / rate;
+    }
+
+    function solveBlurLimitedDistance(D_max, args){
+      // Find largest D in [D_lo, D_max] such that tBlurMax(D) >= tFromFPS.
+      var tFromFPS = args.tFromFPS;
+      if (!(isFinite(D_max) && D_max > 0)) return NaN;
+      if (!(isFinite(tFromFPS) && tFromFPS > 0)) return NaN;
+
+      var lo = 0.5;
+      var hi = D_max;
+      var fLo = tBlurMaxAtDistance(lo, args);
+      if (!isFinite(fLo) || fLo < tFromFPS){
+        // Even at very close distance, blur is too strict.
+        return NaN;
+      }
+
+      // If blur is never limiting up to D_max
+      var fHi = tBlurMaxAtDistance(hi, args);
+      if (isFinite(fHi) && fHi >= tFromFPS) return D_max;
+
+      for (var i = 0; i < 50; i++){
+        var mid = 0.5 * (lo + hi);
+        var fMid = tBlurMaxAtDistance(mid, args);
+        if (isFinite(fMid) && fMid >= tFromFPS){
+          lo = mid;
+        } else {
+          hi = mid;
+        }
+      }
+      return lo;
+    }
+
+    // ----------------- DOM refs -----------------
+    var el = {
+      fovW: $("fovW"),
+      fovH: $("fovH"),
+      scanAz: $("scanAz"),
+      scanEl: $("scanEl"),
+      scanRate: $("scanRate"),
+      tiltRate: $("tiltRate"),
+      overlap: $("overlap"),
+      cameraFps: $("cameraFps"),
+      objectSpeed: $("objectSpeed"),
+
+      sensorPxW: $("sensorPxW"),
+      sensorMmW: $("sensorMmW"),
+      sensorPxH: $("sensorPxH"),
+      sensorMmH: $("sensorMmH"),
+
+      sceneLux: $("sceneLux"),
+      iso: $("iso"),
+      shutterFrac: $("shutterFrac"),
+      targetSnr: $("targetSnr"),
+
+      transmission: $("transmission"),
+      efficiency: $("efficiency"),
+      blurFrac: $("blurFrac"),
+      includeScanBlur: $("includeScanBlur"),
+
+      objW: $("objW"),
+      objH: $("objH"),
+      minPxW: $("minPxW"),
+      minPxH: $("minPxH"),
+
+      viz: $("viz"),
+      sideViz: $("sideViz"),
+
+      btnRecalc: $("btnRecalc"),
+      btnReset: $("btnReset"),
+      btnPresetPhone: $("btnPresetPhone"),
+
+      statusPill: $("statusPill"),
+      presetPill: $("presetPill"),
+      calcPill: $("calcPill"),
+      scalePill: $("scalePill"),
+      warnBox: $("warnBox"),
+
+      kpiFinal: $("kpiFinal"),
+      kpiFinalNote: $("kpiFinalNote"),
+      kpiDistDom: $("kpiDistDom"),
+      kpiDistDomNote: $("kpiDistDomNote"),
+
+      kpiPPD: $("kpiPPD"),
+      kpiPPDNote: $("kpiPPDNote"),
+      kpiLens: $("kpiLens"),
+      kpiLensNote: $("kpiLensNote"),
+
+      kpiScan: $("kpiScan"),
+      kpiScanNote: $("kpiScanNote"),
+      kpiScanDom: $("kpiScanDom"),
+      kpiScanDomNote: $("kpiScanDomNote"),
+
+      kpiAperture: $("kpiAperture"),
+      kpiApertureNote: $("kpiApertureNote"),
+      kpiExpDom: $("kpiExpDom"),
+      kpiExpDomNote: $("kpiExpDomNote"),
+
+      kpiTravel: $("kpiTravel"),
+      kpiTravelNote: $("kpiTravelNote"),
+      kpiFeasible: $("kpiFeasible"),
+      kpiFeasibleNote: $("kpiFeasibleNote"),
+
+      toggleGeo: $("toggleGeo"),
+      detailTbody: $("detailTbody"),
+      vizNote: $("vizNote"),
+
+      sensBase: $("sensBase"),
+      sensScenario: $("sensScenario"),
+      sensLabel: $("sensLabel"),
+      btnSensFps2: $("btnSensFps2"),
+      btnSensLux2: $("btnSensLux2"),
+      btnSensFovHalf: $("btnSensFovHalf"),
+      btnSensPx2: $("btnSensPx2"),
+      btnSensReset: $("btnSensReset")
+    };
+
+    // ----------------- Visualization -----------------
+    function drawViz(args){
+      var fovW = args.fovW;
+      var focal_mm = args.focal_mm;
+      var showGeo = !!args.showGeo;
+      var distW = args.distW;
+      var distH = args.distH;
+      var distBlur = args.distBlur;
+      var distFinal = args.distFinal;
+      var finiteFinal = args.finiteFinal;
+      var objW = args.objW;
+      var objH = args.objH;
+      var scanRate = args.scanRate;
+      var objectSpeed = args.objectSpeed;
+      var maxTravel = args.maxTravel;
+
+      var canvas = el.viz;
+      var ctx = canvas.getContext("2d");
+
+      var dMax = finiteFinal ? Math.max(distW, distH, distFinal, (isFinite(distBlur)?distBlur:0)) : Math.max((distW || 0), (distH || 0), 10);
+      var viewMax = isFinite(dMax) && dMax > 0 ? Math.max(10, dMax * 1.15) : 10;
+
+      var dpr = window.devicePixelRatio || 1;
+      var cssW = canvas.clientWidth;
+      var cssH = canvas.clientHeight;
+      canvas.width = Math.floor(cssW * dpr);
+      canvas.height = Math.floor(cssH * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      var W = cssW;
+      var H = cssH;
+      var margin = 16;
+      var cx = W / 2;
+      var cy = H - 60;
+      var usableH = H - margin - 90;
+      var m2px = usableH / viewMax;
+
+      ctx.clearRect(0, 0, W, H);
+
+      // center axis
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx, cy - usableH);
+      ctx.stroke();
+
+      // distance scale ticks (main chart)
+      function niceStep(maxVal){
+        if (!(isFinite(maxVal) && maxVal > 0)) return 1;
+        var rough = maxVal / 6;
+        var pow10 = Math.pow(10, Math.floor(Math.log10(rough)));
+        var n = rough / pow10;
+        var step;
+        if (n <= 1) step = 1;
+        else if (n <= 2) step = 2;
+        else if (n <= 5) step = 5;
+        else step = 10;
+        return step * pow10;
+      }
+
+      var tickStep = niceStep(viewMax);
+      var maxTicks = 30;
+      ctx.save();
+      ctx.font = "11px " + getComputedStyle(document.documentElement).getPropertyValue('--mono');
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+      for (var dTick = 0, cTick = 0; dTick <= viewMax + 1e-9 && cTick < maxTicks; dTick += tickStep, cTick++){
+        var yTick = cy - dTick * m2px;
+        if (yTick < margin) break;
+
+        // small tick on axis
+        ctx.strokeStyle = "#000";
+        ctx.globalAlpha = 0.9;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(cx - 6, yTick);
+        ctx.lineTo(cx + 6, yTick);
+        ctx.stroke();
+
+        // faint guide line across chart for scale
+        ctx.globalAlpha = 0.08; // extra faint for readability without clutter
+        ctx.beginPath();
+        ctx.moveTo(margin, yTick);
+        ctx.lineTo(W - margin, yTick);
+        ctx.stroke();
+
+        // label
+        ctx.globalAlpha = 0.95;
+        ctx.fillStyle = "#000";
+        var lbl = (dTick === 0) ? "0 m" : (Math.round(dTick) === dTick ? (dTick.toFixed(0) + " m") : (dTick.toFixed(1) + " m"));
+        ctx.fillText(lbl, cx - 10, yTick);
+      }
+      ctx.restore();
+
+      // FoV wedge
+      var half = deg2rad(fovW/2);
+      var yTop = cy - usableH;
+      var xL = cx - Math.tan(half) * usableH;
+      var xR = cx + Math.tan(half) * usableH;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(xL, yTop);
+      ctx.lineTo(xR, yTop);
+      ctx.closePath();
+      ctx.clip();
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 1;
+      ctx.globalAlpha = 0.10;
+      var step = 10;
+      for (var x = -H; x < W + H; x += step){
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x + H, H);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(xL, yTop);
+      ctx.lineTo(xR, yTop);
+      ctx.closePath();
+      ctx.stroke();
+
+      // camera dot
+      ctx.fillStyle = "#000";
+      ctx.beginPath();
+      ctx.arc(cx, cy, 4.5, 0, Math.PI*2);
+      ctx.fill();
+
+      function drawDist(y, label, dash, lw){
+        if (!isFinite(y)) return;
+        ctx.save();
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = lw || 1;
+        if (dash) ctx.setLineDash(dash);
+        ctx.beginPath();
+        ctx.moveTo(cx-8, y);
+        ctx.lineTo(cx+8, y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.font = "11px " + getComputedStyle(document.documentElement).getPropertyValue('--mono');
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#000";
+        ctx.fillText(label, cx + 14, y);
+        ctx.restore();
+      }
+
+      var yW = isFinite(distW) ? (cy - distW * m2px) : NaN;
+      var yH = isFinite(distH) ? (cy - distH * m2px) : NaN;
+      var yB = isFinite(distBlur) ? (cy - distBlur * m2px) : NaN;
+      var yF = (finiteFinal && isFinite(distFinal)) ? (cy - distFinal * m2px) : NaN;
+
+      if (showGeo){
+        // Collect markers then lay them out so labels do not overlap.
+        var markers = [];
+        if (isFinite(yW)) markers.push({ tickY: yW, label: "Width: " + fmt(distW,1) + " m", dash:[6,4], lw:1 });
+        if (isFinite(yH)) markers.push({ tickY: yH, label: "Height: " + fmt(distH,1) + " m", dash:[2,4], lw:1 });
+        if (isFinite(yB)) markers.push({ tickY: yB, label: "Blur: " + fmt(distBlur,1) + " m", dash:[6,3,2,3], lw:1 });
+        if (isFinite(yF)) markers.push({ tickY: yF, label: "Final: " + fmt(distFinal,1) + " m", dash:null, lw:2 });
+
+        // Sort by tick Y (top to bottom)
+        markers.sort(function(a,b){ return a.tickY - b.tickY; });
+
+        // Layout label Y positions with minimum spacing.
+        var minSep = 14; // px
+        var topBound = margin + 14;
+        var bottomBound = cy - 18;
+
+        // Initial: labelY = tickY
+        for (var i = 0; i < markers.length; i++) markers[i].labelY = markers[i].tickY;
+
+        // Forward pass: push down to prevent overlap
+        for (var i2 = 1; i2 < markers.length; i2++){
+          var prev = markers[i2-1];
+          var cur = markers[i2];
+          if (cur.labelY - prev.labelY < minSep) cur.labelY = prev.labelY + minSep;
+        }
+
+        // Backward pass: pull up if we overflow bottom
+        var overflow = markers.length ? (markers[markers.length-1].labelY - bottomBound) : 0;
+        if (overflow > 0){
+          for (var j = 0; j < markers.length; j++) markers[j].labelY -= overflow;
+        }
+
+        // Ensure we don't go above topBound (and if so, push everything down)
+        var underflow = markers.length ? (topBound - markers[0].labelY) : 0;
+        if (underflow > 0){
+          for (var k = 0; k < markers.length; k++) markers[k].labelY += underflow;
+        }
+
+        // Final clamp per marker
+        for (var mI = 0; mI < markers.length; mI++){
+          markers[mI].labelY = clamp(markers[mI].labelY, topBound, bottomBound);
+        }
+
+        // Draw with connectors
+        for (var mJ = 0; mJ < markers.length; mJ++){
+          var mk = markers[mJ];
+          // Tick line at true tickY
+          ctx.save();
+          ctx.strokeStyle = "#000";
+          ctx.lineWidth = mk.lw || 1;
+          if (mk.dash) ctx.setLineDash(mk.dash);
+          ctx.beginPath();
+          ctx.moveTo(cx-8, mk.tickY);
+          ctx.lineTo(cx+8, mk.tickY);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // Connector from tick to labelY (only if different)
+          ctx.globalAlpha = 0.9;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(cx + 8, mk.tickY);
+          ctx.lineTo(cx + 12, mk.labelY);
+          ctx.stroke();
+
+          // Label
+          ctx.font = "11px " + getComputedStyle(document.documentElement).getPropertyValue('--mono');
+          ctx.textAlign = "left";
+          ctx.textBaseline = "middle";
+          ctx.fillStyle = "#000";
+          ctx.fillText(mk.label, cx + 14, mk.labelY);
+          ctx.restore();
+        }
+      }
+
+      if (isFinite(focal_mm) && focal_mm > 0){
+        ctx.save();
+        ctx.fillStyle = "#000";
+        ctx.font = "12px " + getComputedStyle(document.documentElement).getPropertyValue('--mono');
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+        ctx.fillText("f approx " + fmt(focal_mm,2) + " mm", cx, cy + 8);
+        ctx.restore();
+      }
+
+      // horizontal scan speed arrow
+      if (isFinite(scanRate) && scanRate > 0){
+        var arrowY = cy + 18;
+        var arrowLen = Math.min(280, W * 0.48);
+        var x0a = cx;
+        var x1a = cx + arrowLen;
+
+        ctx.save();
+        ctx.strokeStyle = "#000";
+        ctx.fillStyle = "#000";
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+        ctx.moveTo(x0a, arrowY);
+        ctx.lineTo(x1a, arrowY);
+        ctx.stroke();
+
+        var ah = 7;
+        ctx.beginPath();
+        ctx.moveTo(x1a, arrowY);
+        ctx.lineTo(x1a - ah, arrowY - ah);
+        ctx.lineTo(x1a - ah, arrowY + ah);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.font = "12px " + getComputedStyle(document.documentElement).getPropertyValue('--mono');
+        ctx.textAlign = "left";
+        ctx.textBaseline = "top";
+        ctx.fillText("Pan speed: " + scanRate.toFixed(1) + " deg/s", x0a + 6, arrowY + 8);
+        ctx.restore();
+      }
+
+      // object box at detection distance
+      if (showGeo && finiteFinal && isFinite(objW) && isFinite(objH)){
+        var yObj = cy - distFinal * m2px;
+        var wPx = clamp(objW * m2px, 8, 60);
+        var hPx = clamp(objH * m2px, 8, 60);
+        ctx.save();
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(cx - wPx/2, yObj - hPx/2, wPx, hPx);
+        ctx.restore();
+      }
+
+      // object speed arrow (red) toward camera
+      if (isFinite(objectSpeed) && objectSpeed > 0){
+        var refD = (finiteFinal && isFinite(distFinal) && distFinal > 0) ? distFinal : (0.6 * viewMax);
+        var refY = cy - refD * m2px;
+
+        var maxLenPx = Math.max(40, usableH * 0.18);
+        var minLenPx = 22;
+        var lenPx = clamp(objectSpeed * 22, minLenPx, maxLenPx);
+
+        var y1 = clamp(refY, margin + 16, cy - 34);
+        var y2 = clamp(y1 + lenPx, margin + 16, cy - 14);
+
+        ctx.save();
+        ctx.strokeStyle = "#c00";
+        ctx.fillStyle = "#c00";
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+        ctx.moveTo(cx, y1);
+        ctx.lineTo(cx, y2);
+        ctx.stroke();
+
+        var ah2 = 7;
+        ctx.beginPath();
+        ctx.moveTo(cx, y2);
+        ctx.lineTo(cx - ah2, y2 - ah2);
+        ctx.lineTo(cx + ah2, y2 - ah2);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.font = "12px " + getComputedStyle(document.documentElement).getPropertyValue('--mono');
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.fillText("Obj: " + objectSpeed.toFixed(1) + " m/s", cx + 10, (y1 + y2) / 2);
+        ctx.restore();
+      }
+
+      // Max travel arrow
+      if (isFinite(maxTravel) && maxTravel > 0){
+        var hasDetect = (finiteFinal && isFinite(distFinal) && distFinal > 0);
+        var exceedsDetect = hasDetect && (maxTravel > distFinal);
+
+        var yStart;
+        var yEnd;
+
+        if (hasDetect){
+          var remaining = Math.max(distFinal - maxTravel, 0);
+          yStart = cy - distFinal * m2px;
+          yEnd = cy - remaining * m2px;
+        } else {
+          yStart = cy - maxTravel * m2px;
+          yEnd = cy;
+        }
+
+        var y1t = clamp(yStart, margin + 16, cy - 34);
+        var y2t = clamp(yEnd, margin + 16, cy - 14);
+
+        ctx.save();
+        ctx.strokeStyle = "#c00";
+        ctx.fillStyle = "#c00";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6,4]);
+
+        ctx.beginPath();
+        ctx.moveTo(cx, y1t);
+        ctx.lineTo(cx, y2t);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        var ah3 = 7;
+        ctx.beginPath();
+        ctx.moveTo(cx, y2t);
+        ctx.lineTo(cx - ah3, y2t - ah3);
+        ctx.lineTo(cx + ah3, y2t - ah3);
+        ctx.closePath();
+        ctx.fill();
+
+        if (exceedsDetect){
+          ctx.save();
+          ctx.fillStyle = "#c00";
+          ctx.globalAlpha = 0.18;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 22, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 22, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        ctx.font = "12px " + getComputedStyle(document.documentElement).getPropertyValue('--mono');
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.fillText(exceedsDetect ? "Max travel (EXCEEDS detect)" : "Max travel", cx + 10, (y1t + y2t) / 2);
+        ctx.fillText(fmt(maxTravel,1) + " m", cx + 10, (y1t + y2t) / 2 + 14);
+        ctx.restore();
+      }
+
+      el.scalePill.textContent = "Scale: 0-" + Math.round(viewMax) + "m";
+    }
+
+    function drawSideViz(args){
+      var fovH = args.fovH;
+      var focal_mm = args.focal_mm;
+      var fNumberAdj = args.fNumberAdj;
+      var sensorMmW = args.sensorMmW;
+      var sensorMmH = args.sensorMmH;
+
+      var canvas = el.sideViz;
+      var ctx = canvas.getContext("2d");
+
+      var dpr = window.devicePixelRatio || 1;
+      var cssW = canvas.clientWidth;
+      var cssH = canvas.clientHeight;
+      canvas.width = Math.floor(cssW * dpr);
+      canvas.height = Math.floor(cssH * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      var W = cssW;
+      var H = cssH;
+      var margin = 16;
+
+      var xCam = margin + 80;
+      var yMid = Math.floor(H/2);
+
+      ctx.clearRect(0,0,W,H);
+
+      // x-axis (no distance ticks)
+      ctx.save();
+      ctx.strokeStyle = "#000";
+      ctx.globalAlpha = 0.25;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(xCam, yMid);
+      ctx.lineTo(W - margin, yMid);
+      ctx.stroke();
+      ctx.restore();
+
+      // Camera body
+      ctx.save();
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 2;
+      var bodyW = 56;
+      var bodyH = 44;
+      ctx.strokeRect(xCam - bodyW, yMid - bodyH/2, bodyW, bodyH);
+      // Sensor plane inside body
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(xCam - 12, yMid - bodyH/2 + 6);
+      ctx.lineTo(xCam - 12, yMid + bodyH/2 - 6);
+      ctx.stroke();
+      ctx.restore();
+
+      // Lens barrel + focal annotation
+      var lensR = 16;
+      var mmToPxFixed = 1.6;
+      var lensLen = isFinite(focal_mm) ? clamp(focal_mm * mmToPxFixed, 28, 180) : 60;
+
+      var xSensor = xCam - 12;
+      var xAperture = NaN;
+      if (isFinite(focal_mm)){
+        xAperture = xSensor + (focal_mm * mmToPxFixed);
+        lensLen = Math.max(lensLen, xAperture - xCam);
+      }
+
+      ctx.save();
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(xCam, yMid - lensR, lensLen, lensR*2);
+      ctx.restore();
+
+      if (isFinite(focal_mm) && isFinite(xAperture)){
+        ctx.save();
+        ctx.strokeStyle = "#000";
+        ctx.setLineDash([4,4]);
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(xSensor, yMid + lensR + 10);
+        ctx.lineTo(xAperture, yMid + lensR + 10);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.font = "11px " + getComputedStyle(document.documentElement).getPropertyValue('--mono');
+        ctx.fillStyle = "#000";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+        ctx.fillText("f approx " + fmt(focal_mm,2) + " mm", (xSensor + xAperture)/2, yMid + lensR + 14);
+        ctx.restore();
+      }
+
+      if (isFinite(focal_mm) && isFinite(fNumberAdj) && fNumberAdj > 0){
+        var dia_mm = focal_mm / fNumberAdj;
+        var diaPx = clamp(dia_mm * 1.2, 6, 28);
+        var xFront = isFinite(xAperture) ? xAperture : (xCam + lensLen);
+        ctx.save();
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(xFront, yMid, diaPx/2, 0, Math.PI*2);
+        ctx.stroke();
+        ctx.font = "11px " + getComputedStyle(document.documentElement).getPropertyValue('--mono');
+        ctx.fillStyle = "#000";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "bottom";
+        ctx.fillText("Aperture approx " + fmt(dia_mm,1) + "mm", xFront + 8, yMid - 8);
+        ctx.restore();
+      }
+
+      // FoV cone (height)
+      if (isFinite(fovH) && fovH > 0 && fovH < 179.9){
+        var half2 = deg2rad(fovH/2);
+        var xEnd = W - margin;
+        var dx = xEnd - xCam;
+        var dy = Math.tan(half2) * dx;
+        ctx.save();
+        ctx.strokeStyle = "#000";
+        ctx.globalAlpha = 0.55;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(xCam, yMid);
+        ctx.lineTo(xEnd, yMid - dy);
+        ctx.moveTo(xCam, yMid);
+        ctx.lineTo(xEnd, yMid + dy);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        ctx.font = "12px " + getComputedStyle(document.documentElement).getPropertyValue('--mono');
+        ctx.textAlign = "left";
+        ctx.textBaseline = "top";
+        ctx.fillStyle = "#000";
+        ctx.fillText("Side profile (FoVh): " + fmt(fovH,1) + "deg", margin, margin);
+        ctx.restore();
+      }
+
+      // Labels for sensor + focal
+      ctx.save();
+      ctx.font = "11px " + getComputedStyle(document.documentElement).getPropertyValue('--mono');
+      ctx.fillStyle = "#000";
+      ctx.globalAlpha = 0.9;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
+      var line1 = "Sensor: " + fmt(sensorMmW,2) + "x" + fmt(sensorMmH,2) + "mm";
+      var line2 = (isFinite(focal_mm)) ? ("Focal: " + fmt(focal_mm,2) + "mm") : "Focal: -";
+      var line3 = (isFinite(fNumberAdj)) ? ("Required: f/" + fmt(fNumberAdj,2)) : "Required: -";
+      ctx.fillText(line1, margin, margin + 18);
+      ctx.fillText(line2, margin, margin + 34);
+      ctx.fillText(line3, margin, margin + 50);
+      ctx.restore();
+    }
+
+    // ----------------- Scenario computation (no DOM writes) -----------------
+    function computeModel(params){
+      var fovW = params.fovW;
+      var fovH = params.fovH;
+      var sensorPxW = params.sensorPxW;
+      var sensorPxH = params.sensorPxH;
+      var sensorMmW = params.sensorMmW;
+      var sensorMmH = params.sensorMmH;
+      var objW = params.objW;
+      var objH = params.objH;
+      var minPxW = params.minPxW;
+      var minPxH = params.minPxH;
+      var scanAz = params.scanAz;
+      var scanEl = params.scanEl;
+      var scanRate = params.scanRate;
+      var tiltRate = params.tiltRate;
+      var overlapPct = params.overlapPct;
+      var cameraFps = params.cameraFps;
+      var objectSpeed = params.objectSpeed;
+      var sceneLux = params.sceneLux;
+      var iso = params.iso;
+      var shutterFrac = params.shutterFrac;
+      var targetSnr = params.targetSnr;
+      var transmission = params.transmission;
+      var efficiency = params.efficiency;
+      var blurFrac = params.blurFrac;
+      var includeScanBlur = !!params.includeScanBlur;
+
+      var pxPerDegW = (sensorPxW > 0 && fovW > 0) ? (sensorPxW / fovW) : NaN;
+      var pxPerDegH = (sensorPxH > 0 && fovH > 0) ? (sensorPxH / fovH) : NaN;
+
+      var dwell = (cameraFps > 0) ? (1 / cameraFps) : NaN;
+      var tFromFPS = (cameraFps > 0 && shutterFrac > 0) ? (shutterFrac * dwell) : NaN;
+
+      var distW = computeDistanceFromMinPixels({ size_m: objW, minPx: minPxW, pxPerDeg: pxPerDegW });
+      var distH = computeDistanceFromMinPixels({ size_m: objH, minPx: minPxH, pxPerDeg: pxPerDegH });
+      var distPx = Math.min(distW, distH);
+
+      var distBlur = solveBlurLimitedDistance(distPx, {
+        blurFrac: blurFrac,
+        objW: objW,
+        objH: objH,
+        pxPerDegW: pxPerDegW,
+        pxPerDegH: pxPerDegH,
+        objectSpeed: objectSpeed,
+        scanRate: scanRate,
+        includeScanBlur: includeScanBlur,
+        tFromFPS: tFromFPS
+      });
+
+      var distFinal = Math.min(distPx, (isFinite(distBlur) ? distBlur : distPx));
+      var finiteFinal = isFinite(distFinal) && distFinal > 0;
+
+      var overlap = clamp(overlapPct / 100, 0, 0.95);
+      var stepW = fovW * (1 - overlap);
+      var stepH = fovH * (1 - overlap);
+      var scanCols = (stepW > 0) ? Math.max(1, Math.ceil(scanAz / stepW)) : NaN;
+      var scanRows = (stepH > 0) ? Math.max(1, Math.ceil(scanEl / stepH)) : NaN;
+      var scanTiles = (isFinite(scanCols) && isFinite(scanRows)) ? scanCols * scanRows : NaN;
+
+      var panTimePerRow = (scanRate > 0) ? (scanAz / scanRate) : NaN;
+      var tiltTimeTotal = (tiltRate > 0 && isFinite(scanRows)) ? Math.max(0, (scanRows - 1) * (stepH / tiltRate)) : NaN;
+      var dwellTimeTotal = (isFinite(scanTiles) && isFinite(dwell)) ? (scanTiles * dwell) : NaN;
+
+      var mechTime = (isFinite(scanRows) && isFinite(panTimePerRow) && isFinite(tiltTimeTotal))
+        ? (scanRows * panTimePerRow + tiltTimeTotal)
+        : NaN;
+      var camTime = isFinite(dwellTimeTotal) ? dwellTimeTotal : NaN;
+      var scanTime = computeFullDomeScanTimeMax(mechTime, camTime);
+
+      var maxTravel = (isFinite(objectSpeed) && objectSpeed > 0 && isFinite(scanTime) && scanTime >= 0) ? (objectSpeed * scanTime) : 0;
+
+      // Blur-driven shutter at final distance
+      var tBlur = finiteFinal ? tBlurMaxAtDistance(distFinal, {
+        blurFrac: blurFrac,
+        objW: objW,
+        objH: objH,
+        pxPerDegW: pxPerDegW,
+        pxPerDegH: pxPerDegH,
+        objectSpeed: objectSpeed,
+        scanRate: scanRate,
+        includeScanBlur: includeScanBlur
+      }) : NaN;
+
+      var tUsed = (isFinite(tFromFPS) && isFinite(tBlur)) ? Math.min(tFromFPS, tBlur) : tFromFPS;
+
+      var luxEff = sceneLux * clamp(transmission, 0, 1) * clamp(efficiency, 0, 1);
+      var fNumber = estimateFNumberFromLux({ lux: luxEff, shutter_s: tUsed, iso: iso });
+      var snrRef = 20;
+      var snrScale = (isFinite(targetSnr) && targetSnr > 0) ? Math.sqrt(targetSnr / snrRef) : 1;
+      var fNumberAdj = isFinite(fNumber) ? (fNumber / snrScale) : NaN;
+
+      var focalW_mm = computeFocalLengthMm(sensorMmW, fovW);
+      var focalH_mm = computeFocalLengthMm(sensorMmH, fovH);
+      var focal_mm = isFinite(focalW_mm) ? focalW_mm : focalH_mm;
+
+      return {
+        pxPerDegW: pxPerDegW,
+        pxPerDegH: pxPerDegH,
+        distW: distW,
+        distH: distH,
+        distPx: distPx,
+        distBlur: distBlur,
+        distFinal: distFinal,
+        finiteFinal: finiteFinal,
+        mechTime: mechTime,
+        camTime: camTime,
+        scanTime: scanTime,
+        scanTiles: scanTiles,
+        stepW: stepW,
+        stepH: stepH,
+        overlapPct: overlapPct,
+        dwell: dwell,
+        tFromFPS: tFromFPS,
+        tBlur: tBlur,
+        tUsed: tUsed,
+        maxTravel: maxTravel,
+        fNumberAdj: fNumberAdj,
+        focal_mm: focal_mm,
+        focalW_mm: focalW_mm,
+        focalH_mm: focalH_mm,
+        luxEff: luxEff
+      };
+    }
+
+    function dominantDistanceLabel(m){
+      if (!(m && m.finiteFinal)) return { label: "-", note: "Provide valid inputs." };
+      var best = m.distFinal;
+      var eps = Math.max(1e-6, best * 1e-6);
+      var causes = [];
+      if (isFinite(m.distBlur) && Math.abs(best - m.distBlur) <= eps) causes.push("blur");
+      if (isFinite(m.distW) && Math.abs(best - m.distW) <= eps) causes.push("width");
+      if (isFinite(m.distH) && Math.abs(best - m.distH) <= eps) causes.push("height");
+
+      // tie-break in priority order
+      var pick = causes.indexOf("blur") >= 0 ? "blur" : (causes.indexOf("width") >= 0 ? "width" : (causes.indexOf("height") >= 0 ? "height" : "distance"));
+      if (pick === "blur") return { label: "Blur", note: "Limited by motion blur budget on object footprint." };
+      if (pick === "width") return { label: "Width", note: "Limited by min pixels on object width." };
+      if (pick === "height") return { label: "Height", note: "Limited by min pixels on object height." };
+      return { label: "-", note: "" };
+    }
+
+    function dominantScanLabel(m){
+      if (!(m && isFinite(m.scanTime))) return { label: "-", note: "Provide valid scan inputs." };
+      if (isFinite(m.mechTime) && isFinite(m.camTime)){
+        if (m.mechTime >= m.camTime) return { label: "Mechanical", note: "Pan/tilt dominates (mech >= camera)." };
+        return { label: "Detection", note: "Detection FPS dominates (detection >= mech)." };
+      }
+      return { label: "-", note: "" };
+    }
+
+    function dominantExposureLabel(m){
+      if (!(m && isFinite(m.tUsed))) return { label: "-", note: "Provide valid exposure inputs." };
+      if (isFinite(m.tBlur) && isFinite(m.tFromFPS) && m.tBlur < m.tFromFPS) return { label: "Motion blur", note: "Blur budget forces a shorter exposure than FPS shutter." };
+      return { label: "Light", note: "Exposure uses FPS shutter; required f-number comes from lux + ISO." };
+    }
+
+    function formatScenario(m){
+      var d = m.distFinal;
+      var st = m.scanTime;
+      var mt = m.maxTravel;
+      var f = m.fNumberAdj;
+      var dd = dominantDistanceLabel(m).label;
+      var sd = dominantScanLabel(m).label;
+      var ed = dominantExposureLabel(m).label;
+      return [
+        "D_final: " + fmt(d,2) + " m",
+        "ScanTime: " + fmt(st,2) + " s",
+        "MaxTravel: " + fmt(mt,2) + " m",
+        "Required: f/" + fmt(f,2),
+        "DomDistance: " + dd,
+        "DomScan: " + sd,
+        "DomExposure: " + ed
+      ].join("\n");
+    }
+
+    // ----------------- Compute + render -----------------
+    var lastBaselineModel = null;
+
+    function compute(){
+      var params = {
+        fovW: safeNum(el.fovW.value),
+        fovH: safeNum(el.fovH.value),
+        sensorPxW: safeNum(el.sensorPxW.value),
+        sensorPxH: safeNum(el.sensorPxH.value),
+        sensorMmW: safeNum(el.sensorMmW.value),
+        sensorMmH: safeNum(el.sensorMmH.value),
+        objW: safeNum(el.objW.value),
+        objH: safeNum(el.objH.value),
+        minPxW: safeNum(el.minPxW.value),
+        minPxH: safeNum(el.minPxH.value),
+        scanAz: safeNum(el.scanAz.value),
+        scanEl: safeNum(el.scanEl.value),
+        scanRate: safeNum(el.scanRate.value),
+        tiltRate: safeNum(el.tiltRate.value),
+        overlapPct: safeNum(el.overlap.value),
+        cameraFps: safeNum(el.cameraFps.value),
+        objectSpeed: safeNum(el.objectSpeed.value),
+        sceneLux: safeNum(el.sceneLux.value),
+        iso: safeNum(el.iso.value),
+        shutterFrac: safeNum(el.shutterFrac.value),
+        targetSnr: safeNum(el.targetSnr.value),
+        transmission: safeNum(el.transmission.value),
+        efficiency: safeNum(el.efficiency.value),
+        blurFrac: safeNum(el.blurFrac.value) / 100,
+        includeScanBlur: el.includeScanBlur ? el.includeScanBlur.checked : false
+      };
+
+      var warnings = [];
+      if (!(params.fovW > 0 && params.fovW < 179.9)) warnings.push("FoV width should be between 0 and 179.9 degrees.");
+      if (!(params.fovH > 0 && params.fovH < 179.9)) warnings.push("FoV height should be between 0 and 179.9 degrees.");
+      if (!(params.sensorPxW > 0)) warnings.push("Sensor width (px) must be > 0.");
+      if (!(params.sensorPxH > 0)) warnings.push("Sensor height (px) must be > 0.");
+      if (!(params.sensorMmW > 0)) warnings.push("Sensor width (mm) must be > 0.");
+      if (!(params.sensorMmH > 0)) warnings.push("Sensor height (mm) must be > 0.");
+      if (!(params.objW > 0)) warnings.push("Object width must be > 0.");
+      if (!(params.objH > 0)) warnings.push("Object height must be > 0.");
+      if (!(params.minPxW > 0)) warnings.push("Min pixels (width) must be > 0.");
+      if (!(params.minPxH > 0)) warnings.push("Min pixels (height) must be > 0.");
+      if (!(params.scanAz > 0 && params.scanAz <= 360)) warnings.push("Dome scan azimuth should be in (0, 360].");
+      if (!(params.scanEl > 0 && params.scanEl <= 180)) warnings.push("Dome scan elevation should be in (0, 180]. Use 90 for hemisphere, 180 for full sphere.");
+      if (!(params.scanRate > 0)) warnings.push("Scan speed (pan) must be > 0 deg/s.");
+      if (!(params.tiltRate > 0)) warnings.push("Scan speed (tilt) must be > 0 deg/s.");
+      if (!(params.overlapPct >= 0 && params.overlapPct < 100)) warnings.push("Tile overlap must be between 0% and 99%.");
+      if (!(params.cameraFps > 0)) warnings.push("Detection FPS must be > 0.");
+      if (!(params.sceneLux >= 0)) warnings.push("Scene lux must be >= 0.");
+      if (!(params.iso > 0)) warnings.push("ISO must be > 0.");
+      if (!(params.shutterFrac > 0 && params.shutterFrac <= 1)) warnings.push("Shutter fraction must be in (0, 1].");
+      if (!(params.targetSnr > 0)) warnings.push("Target SNR must be > 0.");
+      if (!(params.objectSpeed >= 0)) warnings.push("Object speed must be >= 0 m/s.");
+      if (!(params.transmission >= 0 && params.transmission <= 1)) warnings.push("Transmission must be in [0, 1].");
+      if (!(params.efficiency >= 0 && params.efficiency <= 1)) warnings.push("Efficiency must be in [0, 1].");
+      if (!(isFinite(params.blurFrac) && params.blurFrac > 0 && params.blurFrac <= 0.5)) warnings.push("Blur budget should be in (0, 50%].");
+
+      var m = computeModel(params);
+      lastBaselineModel = m;
+
+      if (warnings.length){
+        el.warnBox.style.display = "block";
+        el.warnBox.innerHTML = warnings.map(function(w){ return "- " + escapeHtml(w); }).join("<br>");
+        el.statusPill.textContent = "Check inputs";
+      } else {
+        el.warnBox.style.display = "none";
+        el.warnBox.textContent = "";
+        el.statusPill.textContent = "OK";
+      }
+
+      el.calcPill.textContent = m.finiteFinal ? ("Max distance: " + fmt(m.distFinal, 2) + " m") : "Invalid";
+
+      el.kpiFinal.innerHTML = m.finiteFinal ? (fmt(m.distFinal, 2) + " <small>m</small>") : "- <small>m</small>";
+
+      if (m.finiteFinal){
+        var thetaW_deg = rad2deg(2 * Math.atan(params.objW / (2 * m.distFinal)));
+        var thetaH_deg = rad2deg(2 * Math.atan(params.objH / (2 * m.distFinal)));
+        var pxW_atFinal = thetaW_deg * m.pxPerDegW;
+        var pxH_atFinal = thetaH_deg * m.pxPerDegH;
+        el.kpiFinalNote.textContent = "At final distance object is approx " + fmt(pxW_atFinal,1) + "px x " + fmt(pxH_atFinal,1) + "px. Blur budget uses min dimension.";
+      } else {
+        el.kpiFinalNote.textContent = "Fix inputs to compute distance.";
+      }
+
+      var dd = dominantDistanceLabel(m);
+      el.kpiDistDom.innerHTML = dd.label + " <small></small>";
+      el.kpiDistDomNote.textContent = dd.note;
+
+      el.kpiPPD.innerHTML = (isFinite(m.pxPerDegW) && isFinite(m.pxPerDegH))
+        ? (fmt(m.pxPerDegW, 2) + " / " + fmt(m.pxPerDegH, 2) + " <small>W/H</small>")
+        : "- <small>px/deg</small>";
+      el.kpiPPDNote.textContent = "Distance uses FoV + sensor px. Blur uses pxPerDeg (conservative min of W/H).";
+
+      // Lensing KPI
+      if (isFinite(m.focalW_mm) && isFinite(m.focalH_mm)){
+        el.kpiLens.innerHTML = fmt(m.focal_mm, 2) + " <small>mm</small>";
+        var mismatch = Math.abs(m.focalW_mm - m.focalH_mm) / Math.max(1e-9, Math.max(m.focalW_mm, m.focalH_mm));
+        el.kpiLensNote.textContent = (mismatch < 0.05)
+          ? ("Focal length consistent from W/H: " + fmt(m.focalW_mm,2) + "mm vs " + fmt(m.focalH_mm,2) + "mm.")
+          : ("W/H focal mismatch: " + fmt(m.focalW_mm,2) + "mm vs " + fmt(m.focalH_mm,2) + "mm. Check sensor mm or FoV.");
+      } else if (isFinite(m.focalW_mm) || isFinite(m.focalH_mm)){
+        el.kpiLens.innerHTML = fmt(m.focal_mm, 2) + " <small>mm</small>";
+        el.kpiLensNote.textContent = "Computed from the available dimension (W or H).";
+      } else {
+        el.kpiLens.innerHTML = "- <small>mm</small>";
+        el.kpiLensNote.textContent = "Provide sensor mm and FoV to estimate focal length.";
+      }
+
+      // Scan KPI
+      var scanOk = isFinite(m.scanTime) && m.scanTime >= 0;
+      el.kpiScan.innerHTML = scanOk ? (fmt(m.scanTime, 2) + " <small>s</small>") : "- <small>s</small>";
+      el.kpiScanNote.textContent = scanOk
+        ? ("Tiles: " + fmt(m.scanTiles,0) + ". Overlap " + fmt(m.overlapPct,0) + "% -> step " + fmt(m.stepW,1) + "deg x " + fmt(m.stepH,1) + "deg. Mech " + fmt(m.mechTime,2) + "s, Cam " + fmt(m.camTime,2) + "s -> max = " + fmt(m.scanTime,2) + "s.")
+        : "Provide valid scan inputs to estimate time.";
+
+      var sd = dominantScanLabel(m);
+      el.kpiScanDom.innerHTML = sd.label + " <small></small>";
+      el.kpiScanDomNote.textContent = sd.note;
+
+      // Travel and feasibility
+      el.kpiTravel.innerHTML = (isFinite(m.maxTravel)) ? (fmt(m.maxTravel, 2) + " <small>m</small>") : "- <small>m</small>";
+      if (m.finiteFinal && isFinite(m.maxTravel)){
+        if (m.maxTravel > m.distFinal){
+          el.kpiTravelNote.textContent = "Max travel exceeds detect distance -> explosion at camera.";
+          el.kpiFeasible.innerHTML = "NO <small></small>";
+          el.kpiFeasibleNote.textContent = "Threat reaches camera before full scan completes.";
+        } else {
+          var remaining = computeRemainingDistance(m.distFinal, m.maxTravel);
+          el.kpiTravelNote.textContent = "Remaining to camera after full scan: " + fmt(remaining,2) + "m.";
+          el.kpiFeasible.innerHTML = "YES <small></small>";
+          el.kpiFeasibleNote.textContent = "Full scan completes before reaching camera (given object speed).";
+        }
+      } else {
+        el.kpiTravelNote.textContent = "-";
+        el.kpiFeasible.innerHTML = "- <small></small>";
+        el.kpiFeasibleNote.textContent = "Provide valid distance and scan inputs.";
+      }
+
+      // Aperture and exposure dominance
+      if (isFinite(m.fNumberAdj)){
+        el.kpiAperture.innerHTML = fmt(m.fNumberAdj, 2) + " <small>f/</small>";
+        var noteBits = [];
+        noteBits.push("luxEff=" + fmt(m.luxEff,0));
+        if (isFinite(m.tUsed)) noteBits.push("tUsed=" + fmt(m.tUsed*1000,2) + "ms");
+        if (isFinite(m.tFromFPS)) noteBits.push("tFPS=" + fmt(m.tFromFPS*1000,2) + "ms");
+        if (isFinite(m.tBlur)) noteBits.push("tBlurMax=" + fmt(m.tBlur*1000,2) + "ms");
+        if (isFinite(m.focal_mm) && m.focal_mm > 0){
+          var pupil = m.focal_mm / m.fNumberAdj;
+          noteBits.push("pupil approx " + fmt(pupil,1) + "mm");
+        }
+        el.kpiApertureNote.textContent = noteBits.join(", ") + ".";
+      } else {
+        el.kpiAperture.innerHTML = "- <small>f/</small>";
+        el.kpiApertureNote.textContent = "Set lux, ISO, FPS, shutter fraction, transmission, and efficiency.";
+      }
+
+      var ed = dominantExposureLabel(m);
+      el.kpiExpDom.innerHTML = ed.label + " <small></small>";
+      el.kpiExpDomNote.textContent = ed.note;
+
+      // Sensitivity baseline block
+      el.sensBase.textContent = formatScenario(m);
+      if (!el.sensScenario.dataset.active){
+        el.sensScenario.textContent = "Click a scenario";
+        el.sensLabel.textContent = "Scenario";
+      }
+
+      // Details table
+      var detailRows = [];
+      detailRows.push(["px/deg (width)", fmt(m.pxPerDegW, 3), "sensorPxW / fovW"]);
+      detailRows.push(["px/deg (height)", fmt(m.pxPerDegH, 3), "sensorPxH / fovH"]);
+      detailRows.push(["Max distance from width", fmt(m.distW, 3) + " m", "pixel footprint constraint"]);
+      detailRows.push(["Max distance from height", fmt(m.distH, 3) + " m", "pixel footprint constraint"]);
+      detailRows.push(["Blur-limited distance", fmt(m.distBlur, 3) + " m", "largest D where tBlurMax(D) >= tFPS"]);
+      detailRows.push(["Final max distance", fmt(m.distFinal, 3) + " m", "min(pixel distance, blur distance)"]);
+      detailRows.push(["Scan tiles", fmt(m.scanTiles, 0), "cols x rows"]);
+      detailRows.push(["Dwell per tile", fmt(m.dwell, 6) + " s", "1 / FPS"]);
+      detailRows.push(["Mechanical time", fmt(m.mechTime, 3) + " s", "rows*pans + between-row tilts"]);
+      detailRows.push(["Detection time", fmt(m.camTime, 3) + " s", "tiles * (1/FPS)"]);
+      detailRows.push(["Full dome scan time", fmt(m.scanTime, 3) + " s", "max(mechanical, detection)" ]);
+      detailRows.push(["Max travel", fmt(m.maxTravel, 3) + " m", "objSpeed * scanTime"]);
+      detailRows.push(["Focal length (W)", fmt(m.focalW_mm, 3) + " mm", "(sensorMmW/2)/tan(FoVw/2)"]);
+      detailRows.push(["Focal length (H)", fmt(m.focalH_mm, 3) + " mm", "(sensorMmH/2)/tan(FoVh/2)"]);
+      detailRows.push(["tFPS", fmt(m.tFromFPS*1000, 3) + " ms", "t = shutterFrac*(1/FPS)"]);
+      detailRows.push(["tBlurMax @ D_final", fmt(m.tBlur*1000, 3) + " ms", "allowed blur / pxRate"]);
+      detailRows.push(["tUsed", fmt(m.tUsed*1000, 3) + " ms", "min(tFPS, tBlurMax)"]);
+      detailRows.push(["luxEff", fmt(m.luxEff, 0) + " lux", "sceneLux*transmission*efficiency"]);
+      detailRows.push(["Required f-number", fmt(m.fNumberAdj, 3), "lux->EV approx + ISO + SNR scaling"]);
+
+      el.detailTbody.innerHTML = detailRows.map(function(row){
+        return "\n<tr>" +
+          "<td class=\"mono\">" + escapeHtml(row[0]) + "</td>" +
+          "<td class=\"mono\">" + escapeHtml(row[1]) + "</td>" +
+          "<td>" + escapeHtml(row[2]) + "</td>" +
+          "</tr>";
+      }).join("");
+
+      drawViz({
+        fovW: params.fovW,
+        focal_mm: m.focal_mm,
+        showGeo: el.toggleGeo ? el.toggleGeo.checked : true,
+        distW: m.distW,
+        distH: m.distH,
+        distBlur: m.distBlur,
+        distFinal: m.distFinal,
+        finiteFinal: m.finiteFinal,
+        objW: params.objW,
+        objH: params.objH,
+        scanRate: params.scanRate,
+        objectSpeed: params.objectSpeed,
+        maxTravel: m.maxTravel
+      });
+
+      drawSideViz({
+        fovH: params.fovH,
+        focal_mm: m.focal_mm,
+        fNumberAdj: m.fNumberAdj,
+        sensorMmW: params.sensorMmW,
+        sensorMmH: params.sensorMmH
+      });
+
+      el.vizNote.innerHTML = m.finiteFinal
+        ? ("At <span class=\"mono\">" + fmt(m.distFinal,2) + "m</span>, horizontal visible width is <span class=\"mono\">" + fmt(2*m.distFinal*Math.tan(deg2rad(params.fovW)/2),2) + "m</span>.")
+        : "Enter valid inputs to see the FoV wedge and distances.";
+
+      return m;
+    }
+
+    // ----------------- Tests (console) -----------------
+    function nearly(a, b, eps){
+      if (eps === undefined) eps = 1e-6;
+      return Math.abs(a-b) <= eps;
+    }
+
+    function runTests(){
+      var pxPerDeg = 10;
+      var d1 = computeDistanceFromMinPixels({ size_m: 1, minPx: 10, pxPerDeg: pxPerDeg });
+      var expected = 1 / (2 * Math.tan(deg2rad(1)/2));
+      console.assert(nearly(d1, expected, 1e-9), "Test1 failed");
+
+      var d2 = computeDistanceFromMinPixels({ size_m: 1, minPx: 20, pxPerDeg: pxPerDeg });
+      console.assert(d2 < d1, "Test2 failed");
+
+      var esc = escapeHtml("<&>\"'");
+      console.assert(esc.indexOf("&lt;") >= 0 && esc.indexOf("&gt;") >= 0 && esc.indexOf("&quot;") >= 0 && esc.indexOf("&#039;") >= 0, "Test3 failed");
+
+      console.assert(nearly(computeRemainingDistance(100, 30), 70, 1e-12), "Test4 failed");
+      console.assert(nearly(computeRemainingDistance(50, 80), 0, 1e-12), "Test5 failed");
+
+      var f = computeFocalLengthMm(10, 45);
+      var fExpected = (10/2) / Math.tan(deg2rad(45)/2);
+      console.assert(nearly(f, fExpected, 1e-9), "Test6 failed");
+
+      console.assert(luxToEV100(1000) < luxToEV100(10000), "Test7 failed");
+
+      var Nsun = estimateFNumberFromLux({ lux: 100000, shutter_s: 1/125, iso: 100 });
+      console.assert(Nsun > 12 && Nsun < 22, "Test8 failed (Nsun=" + Nsun + ")");
+
+      // Scan time max() behavior
+      console.assert(nearly(computeFullDomeScanTimeMax(10, 3), 10, 1e-12), "Test9 failed");
+      console.assert(nearly(computeFullDomeScanTimeMax(2, 7), 7, 1e-12), "Test10 failed");
+      console.assert(nearly(computeFullDomeScanTimeMax(NaN, 7), 7, 1e-12), "Test11 failed");
+      console.assert(!isFinite(computeFullDomeScanTimeMax(NaN, NaN)), "Test12 failed");
+
+      // Blur solver sanity: higher speed should reduce blur-limited distance (all else equal)
+      var baseArgs = {
+        blurFrac: 0.05,
+        objW: 0.3,
+        objH: 0.3,
+        pxPerDegW: 1024/5,
+        pxPerDegH: 1024/5,
+        scanRate: 180,
+        includeScanBlur: false,
+        tFromFPS: 0.33/300
+      };
+      var Dmax = 1000;
+      var dSlow = solveBlurLimitedDistance(Dmax, Object.assign({}, baseArgs, { objectSpeed: 5 }));
+      var dFast = solveBlurLimitedDistance(Dmax, Object.assign({}, baseArgs, { objectSpeed: 25 }));
+      console.assert(isFinite(dSlow) && isFinite(dFast) && dFast <= dSlow, "Test13 failed");
+
+      // Regression: escapeHtml should not contain raw angle brackets
+      var esc2 = escapeHtml("<tag>");
+      console.assert(esc2.indexOf("<") === -1 && esc2.indexOf(">") === -1, "Test14 failed");
+    }
+
+    // ----------------- Presets -----------------
+    function setPreset(name){ el.presetPill.textContent = "Preset: " + name; }
+
+    function presetDefault(){
+      setPreset("Default");
+      el.fovW.value = 5;
+      el.fovH.value = 5;
+      el.scanAz.value = 360;
+      el.scanEl.value = 90;
+      el.scanRate.value = 180;
+      el.tiltRate.value = 180;
+      el.overlap.value = 15;
+      el.cameraFps.value = 300;
+      el.objectSpeed.value = 25;
+      el.sensorPxW.value = 1024;
+      el.sensorPxH.value = 1024;
+      el.sensorMmW.value = 5.76;
+      el.sensorMmH.value = 4.29;
+
+      el.sceneLux.value = 300;
+      el.iso.value = 400;
+      el.shutterFrac.value = 0.33;
+      el.targetSnr.value = 20;
+
+      el.transmission.value = 0.80;
+      el.efficiency.value = 0.35;
+      el.blurFrac.value = 5;
+      el.includeScanBlur.checked = false;
+
+      el.objW.value = 0.3;
+      el.objH.value = 0.3;
+      el.minPxW.value = 5;
+      el.minPxH.value = 5;
+
+      if (el.toggleGeo) el.toggleGeo.checked = true;
+
+      // reset sensitivity panel
+      el.sensScenario.dataset.active = "";
+      el.sensScenario.textContent = "Click a scenario";
+      el.sensLabel.textContent = "Scenario";
+
+      compute();
+    }
+
+    function presetPhone(){
+      setPreset("Phone-ish");
+      el.fovW.value = 74;
+      el.fovH.value = 55;
+      el.scanAz.value = 360;
+      el.scanEl.value = 90;
+      el.scanRate.value = 45;
+      el.tiltRate.value = 45;
+      el.overlap.value = 15;
+      el.cameraFps.value = 30;
+      el.objectSpeed.value = 0;
+      el.sensorPxW.value = 4032;
+      el.sensorPxH.value = 3024;
+      el.sensorMmW.value = 5.76;
+      el.sensorMmH.value = 4.29;
+
+      el.sceneLux.value = 300;
+      el.iso.value = 200;
+      el.shutterFrac.value = 0.5;
+      el.targetSnr.value = 20;
+
+      el.transmission.value = 0.80;
+      el.efficiency.value = 0.35;
+      el.blurFrac.value = 5;
+      el.includeScanBlur.checked = false;
+
+      el.objW.value = 0.5;
+      el.objH.value = 0.5;
+      el.minPxW.value = 60;
+      el.minPxH.value = 60;
+
+      if (el.toggleGeo) el.toggleGeo.checked = true;
+
+      // reset sensitivity panel
+      el.sensScenario.dataset.active = "";
+      el.sensScenario.textContent = "Click a scenario";
+      el.sensLabel.textContent = "Scenario";
+
+      compute();
+    }
+
+    // ----------------- Wiring -----------------
+    var t2 = null;
+    function schedule(){
+      clearTimeout(t2);
+      t2 = setTimeout(compute, 60);
+    }
+
+    function bindInput(node){
+      if (!node) return;
+      node.addEventListener("input", schedule);
+      node.addEventListener("change", schedule);
+    }
+
+    [
+      el.fovW, el.fovH,
+      el.scanAz, el.scanEl,
+      el.scanRate, el.tiltRate,
+      el.overlap, el.cameraFps,
+      el.objectSpeed,
+      el.sensorPxW, el.sensorPxH,
+      el.sensorMmW, el.sensorMmH,
+      el.sceneLux, el.iso,
+      el.shutterFrac, el.targetSnr,
+      el.transmission, el.efficiency,
+      el.blurFrac,
+      el.objW, el.objH,
+      el.minPxW, el.minPxH
+    ].forEach(bindInput);
+
+    if (el.includeScanBlur) el.includeScanBlur.addEventListener("change", schedule);
+
+    el.btnRecalc.addEventListener("click", compute);
+    el.btnReset.addEventListener("click", presetDefault);
+    el.btnPresetPhone.addEventListener("click", presetPhone);
+    window.addEventListener("resize", function(){ compute(); });
+    if (el.toggleGeo){
+      el.toggleGeo.addEventListener("change", function(){ compute(); });
+    }
+
+    function applySensitivityScenario(name, patchFn){
+      if (!lastBaselineModel) compute();
+      var params = {
+        fovW: safeNum(el.fovW.value),
+        fovH: safeNum(el.fovH.value),
+        sensorPxW: safeNum(el.sensorPxW.value),
+        sensorPxH: safeNum(el.sensorPxH.value),
+        sensorMmW: safeNum(el.sensorMmW.value),
+        sensorMmH: safeNum(el.sensorMmH.value),
+        objW: safeNum(el.objW.value),
+        objH: safeNum(el.objH.value),
+        minPxW: safeNum(el.minPxW.value),
+        minPxH: safeNum(el.minPxH.value),
+        scanAz: safeNum(el.scanAz.value),
+        scanEl: safeNum(el.scanEl.value),
+        scanRate: safeNum(el.scanRate.value),
+        tiltRate: safeNum(el.tiltRate.value),
+        overlapPct: safeNum(el.overlap.value),
+        cameraFps: safeNum(el.cameraFps.value),
+        objectSpeed: safeNum(el.objectSpeed.value),
+        sceneLux: safeNum(el.sceneLux.value),
+        iso: safeNum(el.iso.value),
+        shutterFrac: safeNum(el.shutterFrac.value),
+        targetSnr: safeNum(el.targetSnr.value),
+        transmission: safeNum(el.transmission.value),
+        efficiency: safeNum(el.efficiency.value),
+        blurFrac: safeNum(el.blurFrac.value) / 100,
+        includeScanBlur: el.includeScanBlur ? el.includeScanBlur.checked : false
+      };
+
+      var p2 = patchFn(Object.assign({}, params));
+      var m2 = computeModel(p2);
+
+      el.sensScenario.dataset.active = "1";
+      el.sensLabel.textContent = name;
+      el.sensScenario.textContent = formatScenario(m2);
+    }
+
+    el.btnSensFps2.addEventListener("click", function(){
+      applySensitivityScenario("FPS x2", function(p){ p.cameraFps = p.cameraFps * 2; return p; });
+    });
+    el.btnSensLux2.addEventListener("click", function(){
+      applySensitivityScenario("Lux x2", function(p){ p.sceneLux = p.sceneLux * 2; return p; });
+    });
+    el.btnSensFovHalf.addEventListener("click", function(){
+      applySensitivityScenario("FoV x0.5", function(p){ p.fovW = p.fovW * 0.5; p.fovH = p.fovH * 0.5; return p; });
+    });
+    el.btnSensPx2.addEventListener("click", function(){
+      applySensitivityScenario("Sensor px x2", function(p){ p.sensorPxW = Math.round(p.sensorPxW * 2); p.sensorPxH = Math.round(p.sensorPxH * 2); return p; });
+    });
+    el.btnSensReset.addEventListener("click", function(){
+      el.sensScenario.dataset.active = "";
+      el.sensScenario.textContent = "Click a scenario";
+      el.sensLabel.textContent = "Scenario";
+      compute();
+    });
+
+    // Run
+    runTests();
+    presetDefault();
+  })();
+  </script>
+</body>
+</html>
