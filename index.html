@@ -1022,6 +1022,11 @@
       btnSensReset: $("btnSensReset")
     };
 
+    // Validation check for missing objW/objH input elements
+    if (!el.objW || !el.objH){
+      console.error("Missing objW/objH input elements. Check HTML IDs.");
+    }
+
     // ----------------- Visualization -----------------
     function drawViz(args){
       var fovW = args.fovW;
